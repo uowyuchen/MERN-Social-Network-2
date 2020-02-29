@@ -1,6 +1,6 @@
 export const signup = user => {
   // 这个其实就是模仿postman
-  return fetch("http://localhost:8000/signup", {
+  return fetch(`${process.env.REACT_APP_API_URL}/signup`, {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -16,7 +16,8 @@ export const signup = user => {
 
 export const signin = user => {
   // 这个其实就是模仿postman
-  return fetch("http://localhost:8000/signin", {
+  // console.log("1", process.env.REACT_APP_API_URL);
+  return fetch(`${process.env.REACT_APP_API_URL}/signin`, {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -45,7 +46,7 @@ export const signout = cb => {
     localStorage.removeItem("jwt");
     cb();
     // server side: send a request
-    return fetch("http://localhost:8000/signout", {
+    return fetch(`${process.env.REACT_APP_API_URL}/signout`, {
       method: "GET"
     })
       .then(response => {
