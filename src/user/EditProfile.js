@@ -1,10 +1,11 @@
 import React, { Component } from "react";
 import { isAuthenticated } from "../auth/index";
-import { read, update, updateUser } from "../user/apiUser";
+import { read, update, updateUser } from "./apiUser";
 import { Redirect } from "react-router-dom";
 import DefaultProfile from "../images/avatar.png";
 
 export class EditProfile extends Component {
+  _isMounted = false;
   constructor() {
     super();
 
@@ -22,10 +23,14 @@ export class EditProfile extends Component {
   }
 
   componentDidMount() {
+    this._isMounted = true;
     // 因为这次还需要上传⏫图片，所以需要用FormData
     this.userData = new FormData();
     // console.log("1", this.userData);
     this.init(this.props.match.params.userId);
+  }
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   // 这一步为了一开始就加载数据，在form中显示

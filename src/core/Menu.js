@@ -31,6 +31,17 @@ const Menu = ({ history }) => {
           </Link>
         </li>
 
+        {/* Get All Unfollowed Users */}
+        <li className='nav-item'>
+          <Link
+            className='nav-link'
+            style={isActive(history, "/findpeople")}
+            to='/findpeople'
+          >
+            Unfollowed Users
+          </Link>
+        </li>
+
         {/* Signup & Signin */}
         {!isAuthenticated() && (
           <Fragment>
@@ -59,6 +70,16 @@ const Menu = ({ history }) => {
         {isAuthenticated() && (
           <Fragment>
             <li className='nav-item'>
+              <Link
+                className='nav-link'
+                to={`/user/${isAuthenticated().user._id}`}
+                style={isActive(history, `/user/${isAuthenticated().user._id}`)}
+              >
+                {`${isAuthenticated().user.name}'s Profile`}
+              </Link>
+            </li>
+
+            <li className='nav-item'>
               <span
                 className='nav-link'
                 style={
@@ -69,15 +90,6 @@ const Menu = ({ history }) => {
               >
                 Sign Out
               </span>
-            </li>
-            <li className='nav-item'>
-              <Link
-                className='nav-link'
-                to={`/user/${isAuthenticated().user._id}`}
-                style={isActive(history, `/user/${isAuthenticated().user._id}`)}
-              >
-                {`${isAuthenticated().user.name}'s Profile`}
-              </Link>
             </li>
           </Fragment>
         )}

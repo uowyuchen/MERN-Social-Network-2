@@ -7,6 +7,7 @@ import Menu from "./core/Menu";
 import Profile from "./user/Profile";
 import GetAllUsers from "./user/GetAllUsers";
 import EditProfile from "./user/EditProfile";
+import FindUnfollowedPeople from "./user/FindUnfollowedPeople";
 import PrivateRoute from "./auth/PrivateRoute";
 
 const MainRouter = () => {
@@ -25,6 +26,11 @@ const MainRouter = () => {
           exact
           path='/user/edit/:userId'
           component={EditProfile}
+        ></PrivateRoute>
+        <PrivateRoute
+          exact
+          path='/findpeople'
+          component={FindUnfollowedPeople}
         ></PrivateRoute>
         <Route exact path='/users' component={GetAllUsers}></Route>
         <Route path='/' component={Home}></Route>
