@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { singlePost, remove } from "./apiPost";
+import { singlePost, remove, like, unlike } from "./apiPost";
 import DefaultPost from "../images/pingping.jpg";
 import { Link, Redirect } from "react-router-dom";
 import { isAuthenticated } from "../auth";
@@ -8,7 +8,17 @@ export class SinglePost extends Component {
   _isMounted = false;
   state = {
     post: "",
-    redirectToHome: false
+    redirectToHome: false,
+    redirectSignin: false,
+    like: false,
+    likes: 0
+  };
+
+  checkLike = likes => {
+    const userId = isAuthenticated() && isAuthenticated().user.id;
+    // 在likes这个array中找元素
+    let match = likes.indexOf(userId) !== -1;
+    return match;
   };
 
   componentDidMount = () => {
@@ -18,7 +28,11 @@ export class SinglePost extends Component {
         console.log(data.error);
       } else {
         if (this._isMounted) {
-          this.setState({ post: data });
+          this.setState({
+            post: data,
+            likes: data.likes.length,
+            like: this.checkLike(data.likes)
+          });
         }
       }
     });
@@ -46,11 +60,37 @@ export class SinglePost extends Component {
     );
   };
 
+  likeTggle = () => {
+    if (!isAuthenticated()) {
+      this.setState({ redirectSignin: true });
+      return false;
+    }
+
+    let callApi = this.state.like ? unlike : like;
+    const userId = isAuthenticated().user.id;
+    const postId = this.state.post._id;
+    const token = isAuthenticated().token;
+    callApi(userId, token, postId).then(data => {
+      if (data.err) {
+        console.log(data.err);
+      } else {
+        this.setState({
+          like: !this.state.like,
+          likes: data.likes.length
+        });
+      }
+    });
+  };
+
   renderPost = post => {
+    const { like, likes } = this.state;
+
     const posterId = post.postedBy ? `/user/${post.postedBy._id}` : "";
     const posterName = post.postedBy ? post.postedBy.name : " Unknown";
+
     return (
       <div className='card-body'>
+        {/* show post image */}
         <img
           src={`${process.env.REACT_APP_API_URL}/post/photo/${post._id}`}
           alt={post.title}
@@ -59,8 +99,26 @@ export class SinglePost extends Component {
           style={{ height: "300px", width: "100%", objectFit: "cover" }}
         />
 
-        {/* show posts */}
+        {/* show likes */}
+        {like ? (
+          <h3 onClick={this.likeTggle}>
+            <i
+              className='fa fa-thumbs-up text-success bg-dark'
+              style={{ padding: "10px", borderRadius: "50%" }}
+            />{" "}
+            {likes} Like
+          </h3>
+        ) : (
+          <h3 onClick={this.likeTggle}>
+            <i
+              className='fa fa-thumbs-up text-warning bg-dark'
+              style={{ padding: "10px", borderRadius: "50%" }}
+            />{" "}
+            {likes} Like
+          </h3>
+        )}
 
+        {/* show posts */}
         <p className='card-text'>{post.body}</p>
         <br />
         <p className='font-italic mark'>
@@ -72,6 +130,7 @@ export class SinglePost extends Component {
             Back to Posts
           </Link>
 
+          {/* show edit & delete button */}
           {isAuthenticated().user &&
             isAuthenticated().user.id === post.postedBy._id && (
               <Fragment>
@@ -95,10 +154,12 @@ export class SinglePost extends Component {
   };
 
   render() {
-    const { post, redirectToHome } = this.state;
+    const { post, redirectToHome, redirectSignin } = this.state;
 
     if (redirectToHome) {
       return <Redirect to={`/`} />;
+    } else if (redirectSignin) {
+      return <Redirect to={`/signin`} />;
     }
     return (
       <div className='container'>
