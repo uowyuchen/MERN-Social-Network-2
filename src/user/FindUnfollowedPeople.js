@@ -18,12 +18,14 @@ export class FindUnfollowedPeople extends Component {
 
   componentDidMount() {
     this._isMounted = true;
-    const userId = isAuthenticated().user._id;
+    const userId = isAuthenticated().user.id;
     const token = isAuthenticated().token;
     findPeople(userId, token)
       .then(data => {
         if (data.error || undefined) return console.log(data.error);
-        this.setState({ users: data });
+        if (this._isMounted) {
+          this.setState({ users: data });
+        }
       })
       .catch(err => console.log(err));
   }
@@ -32,7 +34,7 @@ export class FindUnfollowedPeople extends Component {
   }
 
   clickFollow = (user, index) => {
-    const userId = isAuthenticated().user._id;
+    const userId = isAuthenticated().user.id;
     const token = isAuthenticated().token;
     follow(userId, token, user._id).then(data => {
       if (data.error) {

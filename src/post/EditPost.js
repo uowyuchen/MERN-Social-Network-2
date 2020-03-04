@@ -1,20 +1,17 @@
 import React, { Component } from "react";
-import { isAuthenticated } from "../auth/index";
-import { read, update, updateUser } from "./apiUser";
+import { singlePost, update } from "./apiPost";
+import { isAuthenticated } from "../auth";
 import { Redirect } from "react-router-dom";
-import DefaultProfile from "../images/avatar.png";
+import DefaultProfile from "../images/pingping.jpg";
 
-export class EditProfile extends Component {
+export class EditPost extends Component {
   _isMounted = false;
   constructor() {
     super();
-
     this.state = {
       id: "",
-      name: "",
-      email: "",
-      about: "",
-      password: "",
+      title: "",
+      body: "",
       redirectToProfile: false,
       error: "",
       fileSize: 0,
@@ -25,18 +22,17 @@ export class EditProfile extends Component {
   componentDidMount() {
     this._isMounted = true;
     // 因为这次还需要上传⏫图片，所以需要用FormData
-    this.userData = new FormData();
+    this.postData = new FormData();
     // console.log("1", this.userData);
-    this.init(this.props.match.params.userId);
+    this.init(this.props.match.params.postId);
   }
   componentWillUnmount() {
     this._isMounted = false;
   }
 
   // 这一步为了一开始就加载数据，在form中显示
-  init = userId => {
-    const token = isAuthenticated().token;
-    read(userId, token).then(data => {
+  init = postId => {
+    singlePost(postId).then(data => {
       if (data.error) {
         // 这里有错误🙅就说明user没有signin
         this.setState({ redirectToProfile: true });
@@ -45,9 +41,8 @@ export class EditProfile extends Component {
         if (this._isMounted) {
           this.setState({
             id: data._id,
-            name: data.name,
-            email: data.email,
-            about: data.about,
+            title: data.title,
+            body: data.body,
             error: ""
           });
         }
@@ -68,7 +63,7 @@ export class EditProfile extends Component {
       event.target.name === "photo" ? event.target.files[0].size : 0;
 
     // 这一步跟下面下行的[]中括号一样，都是变化着给userData的key paire赋值
-    this.userData.set(event.target.name, value);
+    this.postData.set(event.target.name, value);
 
     this.setState({ [event.target.name]: value, fileSize: fileSize });
   };
@@ -80,19 +75,19 @@ export class EditProfile extends Component {
 
     if (this.isValid()) {
       const token = isAuthenticated().token;
-      const userId = this.props.match.params.userId;
-      // const { name, email, password } = this.state;
-      // const user = { name, email, password: password || undefined };
+      const postId = this.state.id; // 这个user即将creates post
 
-      update(userId, token, this.userData).then(data => {
+      update(postId, token, this.postData).then(data => {
         if (data.error) {
           this.setState({ error: data.error });
         } else {
-          // 返回的data就是user object
-
-          updateUser(data, () => {
-            // 没有错误,成功更新之后就redirect到此更新的profile
-            this.setState({ redirectToProfile: true });
+          // 返回的data就是post object
+          this.setState({
+            loading: false,
+            title: "",
+            body: "",
+            photo: "",
+            redirectToProfile: true
           });
         }
       });
@@ -100,7 +95,7 @@ export class EditProfile extends Component {
   };
 
   isValid = () => {
-    const { name, email, password, fileSize } = this.state;
+    const { title, body, fileSize } = this.state;
     if (fileSize > 2000000) {
       this.setState({
         error: "File size should be less than 2000kb",
@@ -108,51 +103,23 @@ export class EditProfile extends Component {
       });
       return false;
     }
-    if (name.length === 0) {
-      this.setState({ error: "Name is required", loading: false });
+    if (title.length === 0 || body.length === 0) {
+      this.setState({ error: "All fields are required", loading: false });
       return false;
     }
-    if (
-      !/^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/.test(email)
-    ) {
-      this.setState({ error: "A valid Email is required", loading: false });
-      return false;
-    }
-    if (password.length >= 1 && password.length <= 5) {
-      this.setState({
-        error: "Password must be at least 6 characters long",
-        loading: false
-      });
-      return false;
-    }
+
     return true;
   };
 
   render() {
-    const {
-      id,
-      name,
-      email,
-      about,
-      password,
-      redirectToProfile,
-      error,
-      loading
-    } = this.state;
+    const { id, title, body, redirectToProfile, error, loading } = this.state;
+
     if (redirectToProfile) {
-      return <Redirect to={`/user/${id}`} />;
+      return <Redirect to={`/user/${isAuthenticated().user.id}`} />;
     }
-
-    const photoUrl = id
-      ? `${
-          process.env.REACT_APP_API_URL
-        }/users/photo/${id}?${new Date().getTime()}`
-      : DefaultProfile;
-
     return (
       <div className='container'>
-        <h2 className='mb-5 mt-5'>EditProfile</h2>
-
+        <h2 className='mt-2 mb-2'>{title}</h2>
         {/* display errors */}
         <div
           className='alert alert-danger'
@@ -169,19 +136,19 @@ export class EditProfile extends Component {
         ) : (
           ""
         )}
-
-        {/* Avatar Image Preview */}
         <img
-          src={photoUrl}
-          alt={name}
+          src={`${
+            process.env.REACT_APP_API_URL
+          }/post/photo/${id}?${new Date().getTime()}`}
+          alt={title}
           style={{ height: "200px", width: "auto" }}
           onError={image => (image.target.src = `${DefaultProfile}`)}
         />
 
-        {/* Edit Profile Form */}
+        {/* Edit Post Form */}
         <form onSubmit={this.handleSubmit}>
           <div className='form-group'>
-            <label className='text-muted'>Profile Photo</label>
+            <label className='text-muted'>Post Photo</label>
             <input
               type='file'
               className='form-control'
@@ -192,51 +159,32 @@ export class EditProfile extends Component {
             />
           </div>
           <div className='form-group'>
-            <label className='text-muted'>Name</label>
+            <label className='text-muted'>Title</label>
             <input
               type='text'
               className='form-control'
-              name='name'
+              name='title'
               onChange={this.handlechange}
-              value={name}
-            />
-          </div>
-          <div className='form-group'>
-            <label className='text-muted'>Email</label>
-            <input
-              type='email'
-              className='form-control'
-              name='email'
-              onChange={this.handlechange}
-              value={email}
-            />
-          </div>
-          <div className='form-group'>
-            <label className='text-muted'>About</label>
-            <textarea
-              type='text'
-              className='form-control'
-              name='about'
-              onChange={this.handlechange}
-              value={about}
-            />
-          </div>
-          <div className='form-group'>
-            <label className='text-muted'>Password</label>
-            <input
-              type='password'
-              className='form-control'
-              name='password'
-              onChange={this.handlechange}
-              value={password}
+              value={title}
             />
           </div>
 
-          <button className='btn btn-raised btn-primary'>Update</button>
+          <div className='form-group'>
+            <label className='text-muted'>Body</label>
+            <textarea
+              type='text'
+              className='form-control'
+              name='body'
+              onChange={this.handlechange}
+              value={body}
+            />
+          </div>
+
+          <button className='btn btn-raised btn-primary'>Update Post</button>
         </form>
       </div>
     );
   }
 }
 
-export default EditProfile;
+export default EditPost;

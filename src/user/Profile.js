@@ -6,6 +6,7 @@ import DefaultProfile from "../images/avatar.png";
 import DeleteUser from "./DeleteUser";
 import FollowProfileButton from "./FollowProfileButton";
 import ProfileTabs from "./ProfileTabs";
+import { listByUser } from "../post/apiPost";
 
 export class Profile extends Component {
   _isMounted = false;
@@ -15,7 +16,8 @@ export class Profile extends Component {
       user: { following: [], followers: [] }, // 这个user是别人
       redirectToSignin: false, // 目的是：如果没signin，让其返回
       following: false, // 一开始都是unfollow的状态，所以false
-      error: ""
+      error: "",
+      posts: []
     };
   }
 
@@ -28,10 +30,6 @@ export class Profile extends Component {
     this._isMounted = false;
   }
 
-  UNSAFE_componentWillReceiveProps(props) {
-    this.init(props.match.params.userId);
-  }
-
   // 这个init方法是我们要读取我们看的那个 user的profile，我们可能会follow这个人
   // 再解释一下：这个init就是，我们看谁的profile，就通过那个人的id 读取那个人的profile
   init = userId => {
@@ -42,9 +40,24 @@ export class Profile extends Component {
         // 这里有错误🙅就说明user没有signin
         this.setState({ redirectToSignin: true });
       } else {
-        let following = this.checkFollow(data);
-        // 没有错误就拿到了user info
-        this.setState({ user: data, following });
+        if (this._isMounted) {
+          let following = this.checkFollow(data);
+          // 没有错误就拿到了user info
+          this.setState({ user: data, following });
+          // get single user's posts
+          this.loadPosts(data._id);
+        }
+      }
+    });
+  };
+
+  loadPosts = userId => {
+    const token = isAuthenticated().token;
+    listByUser(userId, token).then(data => {
+      if (data.error) {
+        console.log(data.error);
+      } else {
+        this.setState({ posts: data });
       }
     });
   };
@@ -55,14 +68,14 @@ export class Profile extends Component {
     // console.log(user.followers);
     return user.followers.find(
       // 检查有没有我的userId，我=》指的是当前登录的user
-      follower => follower._id === isAuthenticated().user._id
+      follower => follower._id === isAuthenticated().user.id
     );
   };
 
   // follow button functin
   clickFollowButton = callApi => {
     // 这个是当前登录的user的🆔
-    const userId = isAuthenticated().user._id;
+    const userId = isAuthenticated().user.id;
     const token = isAuthenticated().token;
     // 这个是你要follow的那个人的🆔
     const followId = this.props.match.params.userId;
@@ -79,19 +92,19 @@ export class Profile extends Component {
   render() {
     const redirectToSignin = this.state.redirectToSignin;
     if (redirectToSignin) return <Redirect to='/signin' />;
-    const { user } = this.state;
+    const { user, posts } = this.state;
 
     const photoUrl = this.state.user._id
       ? `${process.env.REACT_APP_API_URL}/users/photo/${
           this.state.user._id
         }?${new Date().getTime()}`
       : DefaultProfile;
-    console.log(user);
+    // console.log(user);
     return (
       <div className='container'>
         <h2 className='mt-5 mb-5'>Profile</h2>
         <div className='row'>
-          <div className='col-md-6'>
+          <div className='col-md-4'>
             <img
               className='card-img-top'
               src={photoUrl}
@@ -101,7 +114,7 @@ export class Profile extends Component {
             />
           </div>
 
-          <div className='col-md-6'>
+          <div className='col-md-8'>
             {/* 显示个人信息：name, email, created date */}
             <div className='lead mt-2'>
               <p>Hello {user.name}</p>
@@ -113,8 +126,14 @@ export class Profile extends Component {
 
             {/* 登录的user和当前页面的user是一个user就可以update，delete */}
             {isAuthenticated().user &&
-            isAuthenticated().user._id === this.state.user._id ? (
+            isAuthenticated().user.id === this.state.user._id ? (
               <div className='d-inline-block'>
+                <Link
+                  className='btn btn-raised btn-info mr-5'
+                  to={`/post/create`}
+                >
+                  Create Post
+                </Link>
                 <Link
                   className='btn btn-raised btn-success mr-5'
                   to={`/user/edit/${this.state.user._id}`}
@@ -140,6 +159,7 @@ export class Profile extends Component {
             <ProfileTabs
               followers={user.followers}
               following={user.following}
+              posts={posts}
             />
           </div>
         </div>

@@ -17,7 +17,9 @@ export class GetAllUsers extends Component {
     list()
       .then(data => {
         if (data.error || undefined) return console.log(data.error);
-        this.setState({ users: data });
+        if (this._isMounted) {
+          this.setState({ users: data });
+        }
       })
       .catch(err => console.log(err));
   }

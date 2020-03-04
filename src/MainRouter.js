@@ -9,6 +9,9 @@ import GetAllUsers from "./user/GetAllUsers";
 import EditProfile from "./user/EditProfile";
 import FindUnfollowedPeople from "./user/FindUnfollowedPeople";
 import PrivateRoute from "./auth/PrivateRoute";
+import NewPost from "./post/NewPost";
+import SinglePost from "./post/SinglePost";
+import EditPost from "./post/EditPost";
 
 const MainRouter = () => {
   return (
@@ -32,7 +35,23 @@ const MainRouter = () => {
           path='/findpeople'
           component={FindUnfollowedPeople}
         ></PrivateRoute>
+        <PrivateRoute
+          exact
+          path='/post/create'
+          component={NewPost}
+        ></PrivateRoute>
+
+        {/* edit a post */}
+        <PrivateRoute
+          exact
+          path='/posts/edit/:postId'
+          component={EditPost}
+        ></PrivateRoute>
+
+        {/* get all users */}
         <Route exact path='/users' component={GetAllUsers}></Route>
+        <Route exact path='/posts/:postId' component={SinglePost}></Route>
+
         <Route path='/' component={Home}></Route>
       </Switch>
     </div>

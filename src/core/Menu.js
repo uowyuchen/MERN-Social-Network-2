@@ -42,6 +42,17 @@ const Menu = ({ history }) => {
           </Link>
         </li>
 
+        {/* Create a New Post */}
+        <li className='nav-item'>
+          <Link
+            className='nav-link'
+            style={isActive(history, "/post/create")}
+            to='/post/create'
+          >
+            Create Post
+          </Link>
+        </li>
+
         {/* Signup & Signin */}
         {!isAuthenticated() && (
           <Fragment>
@@ -72,8 +83,8 @@ const Menu = ({ history }) => {
             <li className='nav-item'>
               <Link
                 className='nav-link'
-                to={`/user/${isAuthenticated().user._id}`}
-                style={isActive(history, `/user/${isAuthenticated().user._id}`)}
+                to={`/user/${isAuthenticated().user.id}`}
+                style={isActive(history, `/user/${isAuthenticated().user.id}`)}
               >
                 {`${isAuthenticated().user.name}'s Profile`}
               </Link>
