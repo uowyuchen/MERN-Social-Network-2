@@ -119,3 +119,37 @@ export const unlike = (userId, token, postId) => {
     })
     .catch(err => console.log(err));
 };
+
+// 提取出来commet方法
+export const comment = (userId, token, postId, comment) => {
+  return fetch(`${process.env.REACT_APP_API_URL}/post/comment`, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json", // 因为这是formdata
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ userId, postId, comment })
+  })
+    .then(response => {
+      return response.json();
+    })
+    .catch(err => console.log(err));
+};
+
+// 提取出来uncommet方法
+export const uncomment = (userId, token, postId, comment) => {
+  return fetch(`${process.env.REACT_APP_API_URL}/post/uncomment`, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json", // 因为这是formdata
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ userId, postId, comment })
+  })
+    .then(response => {
+      return response.json();
+    })
+    .catch(err => console.log(err));
+};

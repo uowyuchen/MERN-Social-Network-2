@@ -3,6 +3,7 @@ import { singlePost, remove, like, unlike } from "./apiPost";
 import DefaultPost from "../images/pingping.jpg";
 import { Link, Redirect } from "react-router-dom";
 import { isAuthenticated } from "../auth";
+import Comment from "./Comment";
 
 export class SinglePost extends Component {
   _isMounted = false;
@@ -11,7 +12,8 @@ export class SinglePost extends Component {
     redirectToHome: false,
     redirectSignin: false,
     like: false,
-    likes: 0
+    likes: 0,
+    comments: []
   };
 
   checkLike = likes => {
@@ -31,7 +33,8 @@ export class SinglePost extends Component {
           this.setState({
             post: data,
             likes: data.likes.length,
-            like: this.checkLike(data.likes)
+            like: this.checkLike(data.likes),
+            comments: data.comments
           });
         }
       }
@@ -153,8 +156,12 @@ export class SinglePost extends Component {
     );
   };
 
+  updateComments = comments => {
+    this.setState({ comments: comments });
+  };
+
   render() {
-    const { post, redirectToHome, redirectSignin } = this.state;
+    const { post, redirectToHome, redirectSignin, comments } = this.state;
 
     if (redirectToHome) {
       return <Redirect to={`/`} />;
@@ -173,6 +180,12 @@ export class SinglePost extends Component {
         ) : (
           this.renderPost(post)
         )}
+
+        <Comment
+          updateComments={this.updateComments}
+          postId={post._id}
+          comments={comments.reverse()}
+        />
       </div>
     );
   }

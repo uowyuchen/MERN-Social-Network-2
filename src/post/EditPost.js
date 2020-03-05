@@ -120,6 +120,7 @@ export class EditPost extends Component {
     return (
       <div className='container'>
         <h2 className='mt-2 mb-2'>{title}</h2>
+
         {/* display errors */}
         <div
           className='alert alert-danger'
