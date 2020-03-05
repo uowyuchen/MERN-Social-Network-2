@@ -80,11 +80,21 @@ const Menu = ({ history }) => {
         {/* Signout & Show Profile */}
         {isAuthenticated() && (
           <Fragment>
+            {console.log(isAuthenticated())}
             <li className='nav-item'>
               <Link
                 className='nav-link'
-                to={`/user/${isAuthenticated().user.id}`}
-                style={isActive(history, `/user/${isAuthenticated().user.id}`)}
+                to={
+                  `/user/${isAuthenticated().user.id}`
+                    ? `/user/${isAuthenticated().user.id}`
+                    : `/user/${isAuthenticated().user._id}`
+                }
+                style={isActive(
+                  history,
+                  `/user/${isAuthenticated().user.id}`
+                    ? `/user/${isAuthenticated().user.id}`
+                    : `/user/${isAuthenticated().user._id}`
+                )}
               >
                 {`${isAuthenticated().user.name}'s Profile`}
               </Link>

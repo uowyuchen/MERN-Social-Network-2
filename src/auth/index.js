@@ -34,7 +34,7 @@ export const signin = user => {
 export const authenticate = (jwt, cb) => {
   // 因为有的时候component正在mounting的时候，window object isnot available；所以这一步很重要
   if (typeof window !== "undefined") {
-    console.log("2", jwt);
+    // console.log("2", jwt);
     localStorage.setItem("jwt", JSON.stringify(jwt));
     cb();
   }
@@ -96,6 +96,24 @@ export const resetPassword = resetInfo => {
     body: JSON.stringify(resetInfo)
   })
     .then(response => {
+      return response.json();
+    })
+    .catch(err => console.log(err));
+};
+
+// social login
+export const socialLogin = user => {
+  return fetch(`${process.env.REACT_APP_API_URL}/social-login/`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    },
+    // credentials: "include", // works only in the same origin
+    body: JSON.stringify(user)
+  })
+    .then(response => {
+      console.log("signin response: ", response);
       return response.json();
     })
     .catch(err => console.log(err));
