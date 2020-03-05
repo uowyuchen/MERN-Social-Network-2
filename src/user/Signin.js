@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { Redirect } from "react-router-dom";
 import { signin, authenticate } from "../auth";
+import { Link, Redirect } from "react-router-dom";
 
 export class Signin extends Component {
   constructor() {
@@ -87,7 +87,19 @@ export class Signin extends Component {
               value={password}
             />
           </div>
-          <button className='btn btn-raised btn-primary'>Submit</button>
+          <button className='btn btn-raised btn-primary inline-block'>
+            Submit
+          </button>
+          {/* forgot password button */}
+          <button className='btn btn-raised btn-danger inline-block ml-5'>
+            <Link
+              to='/forgot-password'
+              style={{ textDecoration: "none", color: "white" }}
+            >
+              {" "}
+              Forgot Password
+            </Link>
+          </button>
         </form>
       </div>
     );
