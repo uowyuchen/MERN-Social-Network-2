@@ -87,12 +87,16 @@ export class EditProfile extends Component {
       update(userId, token, this.userData).then(data => {
         if (data.error) {
           this.setState({ error: data.error });
+        } else if (isAuthenticated().user.role === "admin") {
+          this.setState({
+            redirectToProfile: true
+          });
         } else {
-          // 返回的data就是user object
-
+          // if same user update localstorage and redirect
           updateUser(data, () => {
-            // 没有错误,成功更新之后就redirect到此更新的profile
-            this.setState({ redirectToProfile: true });
+            this.setState({
+              redirectToProfile: true
+            });
           });
         }
       });

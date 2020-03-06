@@ -85,13 +85,13 @@ const Menu = ({ history }) => {
               <Link
                 className='nav-link'
                 to={
-                  `/user/${isAuthenticated().user.id}`
+                  isAuthenticated().user.id
                     ? `/user/${isAuthenticated().user.id}`
                     : `/user/${isAuthenticated().user._id}`
                 }
                 style={isActive(
                   history,
-                  `/user/${isAuthenticated().user.id}`
+                  isAuthenticated().user.id
                     ? `/user/${isAuthenticated().user.id}`
                     : `/user/${isAuthenticated().user._id}`
                 )}
@@ -99,6 +99,19 @@ const Menu = ({ history }) => {
                 {`${isAuthenticated().user.name}'s Profile`}
               </Link>
             </li>
+
+            {/* admin access */}
+            {isAuthenticated() && isAuthenticated().user.role === "admin" && (
+              <li className='nav-item'>
+                <Link
+                  to={`/admin`}
+                  style={isActive(history, `/admin`)}
+                  className='nav-link'
+                >
+                  Admin
+                </Link>
+              </li>
+            )}
 
             <li className='nav-item'>
               <span

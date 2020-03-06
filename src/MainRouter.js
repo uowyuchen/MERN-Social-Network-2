@@ -14,6 +14,7 @@ import SinglePost from "./post/SinglePost";
 import EditPost from "./post/EditPost";
 import ForgotPassword from "./user/ForgotPassword";
 import ResetPassword from "./user/ResetPassword";
+import Admin from "./admin/Admin";
 
 const MainRouter = () => {
   return (
@@ -48,6 +49,8 @@ const MainRouter = () => {
           path='/posts/edit/:postId'
           component={EditPost}
         ></PrivateRoute>
+        {/* admin route */}
+        <PrivateRoute exact path='/admin' component={Admin} />
         {/* get all users */}
         <Route exact path='/users' component={GetAllUsers}></Route>
         <Route exact path='/posts/:postId' component={SinglePost}></Route>

@@ -115,7 +115,7 @@ export class EditPost extends Component {
     const { id, title, body, redirectToProfile, error, loading } = this.state;
 
     if (redirectToProfile) {
-      return <Redirect to={`/user/${isAuthenticated().user.id}`} />;
+      return <Redirect to={`/posts/${id}`} />;
     }
     return (
       <div className='container'>

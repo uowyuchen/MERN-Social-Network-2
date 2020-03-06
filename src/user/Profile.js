@@ -30,6 +30,11 @@ export class Profile extends Component {
     this._isMounted = false;
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.init(nextProps.match.params.userId);
+    //console.log("next props", nextProps.match.params.userId);
+  }
+
   // 这个init方法是我们要读取我们看的那个 user的profile，我们可能会follow这个人
   // 再解释一下：这个init就是，我们看谁的profile，就通过那个人的id 读取那个人的profile
   init = userId => {
@@ -148,6 +153,26 @@ export class Profile extends Component {
                 onButtonClick={this.clickFollowButton}
               />
             )}
+            <div>
+              {isAuthenticated().user &&
+                isAuthenticated().user.role === "admin" && (
+                  <div className='card mt-5'>
+                    <div className='card-body'>
+                      <h5 className='card-title'>Admin</h5>
+                      <p className='mb-2 text-danger'>
+                        Edit/Delete as an Admin
+                      </p>
+                      <Link
+                        className='btn btn-raised btn-success mr-5'
+                        to={`/user/edit/${user._id}`}
+                      >
+                        Edit Profile
+                      </Link>
+                      <DeleteUser userId={user._id} />
+                    </div>
+                  </div>
+                )}
+            </div>
             <hr />
           </div>
         </div>
