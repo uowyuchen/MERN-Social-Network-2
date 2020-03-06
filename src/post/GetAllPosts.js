@@ -8,20 +8,42 @@ export class GetAllPosts extends Component {
   constructor() {
     super();
     this.state = {
-      posts: []
+      posts: [],
+      page: 1
     };
   }
 
+  loadPosts = page => {
+    list(page).then(data => {
+      if (data.error) {
+        console.log(data.error);
+      } else {
+        this.setState({ posts: data });
+      }
+    });
+  };
+
+  loadMore = number => {
+    this.setState({ page: this.state.page + number });
+    this.loadPosts(this.state.page + number);
+  };
+
+  loadLess = number => {
+    this.setState({ page: this.state.page - number });
+    this.loadPosts(this.state.page - number);
+  };
+
   componentDidMount() {
     this._isMounted = true;
-    list()
-      .then(data => {
-        if (data.error || undefined) return console.log(data.error);
-        if (this._isMounted) {
-          this.setState({ posts: data });
-        }
-      })
-      .catch(err => console.log(err));
+    this.loadPosts(this.state.page);
+    // list()
+    //   .then(data => {
+    //     if (data.error || undefined) return console.log(data.error);
+    //     if (this._isMounted) {
+    //       this.setState({ posts: data });
+    //     }
+    //   })
+    //   .catch(err => console.log(err));
   }
   componentWillUnmount() {
     this._isMounted = false;
@@ -67,13 +89,36 @@ export class GetAllPosts extends Component {
   };
 
   render() {
-    const { posts } = this.state;
+    const { posts, page } = this.state;
     return (
       <div className='container'>
         <h2 className='mt-5 mb-5'>
-          {!posts.length ? "Loading..." : "Recent Posts"}
+          {!posts.length ? "No more posts!" : "Recent Posts"}
         </h2>
+
         {this.renderPosts(posts)}
+
+        {page > 1 ? (
+          <button
+            className='btn btn-raised btn-warning mr-5 mt-5 mb-5'
+            onClick={() => this.loadLess(1)}
+          >
+            Previous ({this.state.page - 1})
+          </button>
+        ) : (
+          ""
+        )}
+
+        {posts.length && posts.length == 3 ? (
+          <button
+            className='btn btn-raised btn-success mt-5 mb-5'
+            onClick={() => this.loadMore(1)}
+          >
+            Next (Go to Page {page + 1})
+          </button>
+        ) : (
+          ""
+        )}
       </div>
     );
   }

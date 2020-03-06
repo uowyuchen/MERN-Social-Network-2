@@ -16,8 +16,8 @@ export const create = (userId, token, post) => {
 };
 
 // 提取出来list方法，list一个all posts
-export const list = async () => {
-  return await fetch(`${process.env.REACT_APP_API_URL}/posts`, {
+export const list = async page => {
+  return await fetch(`${process.env.REACT_APP_API_URL}/posts/?page=${page}`, {
     method: "GET"
   })
     .then(response => {

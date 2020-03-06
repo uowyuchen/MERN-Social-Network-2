@@ -18,16 +18,19 @@ export class DeleteUser extends Component {
 
   deleteAccount = () => {
     const token = isAuthenticated().token;
-    const userId = isAuthenticated().user.id;
+    const userId = this.props.userId;
+
+    console.log(isAuthenticated().user.role);
     remove(userId, token).then(data => {
       if (data.error) {
         console.log(data.error);
       } else {
-        console.log(1);
-        // signout user
-        signout(() => {
-          console.log("User is deleted");
-        });
+        // 有条件的 signout user；如果是admin就不signout了
+        if (!isAuthenticated().user.role === "admin") {
+          signout(() => {
+            console.log("User is deleted");
+          });
+        }
         // redirect
         this.setState({ redirect: true });
       }

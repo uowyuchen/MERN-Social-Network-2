@@ -40,7 +40,7 @@ export class EditPost extends Component {
         // 没有错误,成功更新之后就redirect到此更新的profile
         if (this._isMounted) {
           this.setState({
-            id: data._id,
+            id: data.postedBy._id,
             title: data.title,
             body: data.body,
             error: ""
@@ -75,7 +75,7 @@ export class EditPost extends Component {
 
     if (this.isValid()) {
       const token = isAuthenticated().token;
-      const postId = this.state.id; // 这个user即将creates post
+      const postId = this.props.match.params.postId; // 这个user即将creates post
 
       update(postId, token, this.postData).then(data => {
         if (data.error) {
@@ -111,11 +111,51 @@ export class EditPost extends Component {
     return true;
   };
 
+  editPostForm = (title, body) => (
+    /* Edit Post Form */
+    <form onSubmit={this.handleSubmit}>
+      <div className='form-group'>
+        <label className='text-muted'>Post Photo</label>
+        <input
+          type='file'
+          className='form-control'
+          name='photo'
+          onChange={this.handlechange}
+          accept='image/*'
+          // value={name}
+        />
+      </div>
+      <div className='form-group'>
+        <label className='text-muted'>Title</label>
+        <input
+          type='text'
+          className='form-control'
+          name='title'
+          onChange={this.handlechange}
+          value={title}
+        />
+      </div>
+
+      <div className='form-group'>
+        <label className='text-muted'>Body</label>
+        <textarea
+          type='text'
+          className='form-control'
+          name='body'
+          onChange={this.handlechange}
+          value={body}
+        />
+      </div>
+
+      <button className='btn btn-raised btn-primary'>Update Post</button>
+    </form>
+  );
+
   render() {
     const { id, title, body, redirectToProfile, error, loading } = this.state;
 
     if (redirectToProfile) {
-      return <Redirect to={`/posts/${id}`} />;
+      return <Redirect to={`/posts/${this.props.match.params.postId}`} />;
     }
     return (
       <div className='container'>
@@ -137,52 +177,20 @@ export class EditPost extends Component {
         ) : (
           ""
         )}
+
         <img
-          src={`${
-            process.env.REACT_APP_API_URL
-          }/post/photo/${id}?${new Date().getTime()}`}
+          src={`${process.env.REACT_APP_API_URL}/post/photo/${
+            this.props.match.params.postId
+          }?${new Date().getTime()}`}
           alt={title}
           style={{ height: "200px", width: "auto" }}
           onError={image => (image.target.src = `${DefaultProfile}`)}
         />
 
-        {/* Edit Post Form */}
-        <form onSubmit={this.handleSubmit}>
-          <div className='form-group'>
-            <label className='text-muted'>Post Photo</label>
-            <input
-              type='file'
-              className='form-control'
-              name='photo'
-              onChange={this.handlechange}
-              accept='image/*'
-              // value={name}
-            />
-          </div>
-          <div className='form-group'>
-            <label className='text-muted'>Title</label>
-            <input
-              type='text'
-              className='form-control'
-              name='title'
-              onChange={this.handlechange}
-              value={title}
-            />
-          </div>
+        {isAuthenticated().user.role === "admin" &&
+          this.editPostForm(title, body)}
 
-          <div className='form-group'>
-            <label className='text-muted'>Body</label>
-            <textarea
-              type='text'
-              className='form-control'
-              name='body'
-              onChange={this.handlechange}
-              value={body}
-            />
-          </div>
-
-          <button className='btn btn-raised btn-primary'>Update Post</button>
-        </form>
+        {isAuthenticated().user.id === id && this.editPostForm(title, body)}
       </div>
     );
   }

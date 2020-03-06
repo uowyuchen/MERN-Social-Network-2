@@ -132,6 +132,65 @@ export class EditProfile extends Component {
     return true;
   };
 
+  editProfileForm = (name, email, password, about) => (
+    /* Edit Profile Form */
+    <form onSubmit={this.handleSubmit}>
+      <div className='form-group'>
+        <label className='text-muted'>Profile Photo</label>
+        <input
+          type='file'
+          className='form-control'
+          name='photo'
+          onChange={this.handlechange}
+          accept='image/*'
+          // value={name}
+        />
+      </div>
+      <div className='form-group'>
+        <label className='text-muted'>Name</label>
+        <input
+          type='text'
+          className='form-control'
+          name='name'
+          onChange={this.handlechange}
+          value={name}
+        />
+      </div>
+      <div className='form-group'>
+        <label className='text-muted'>Email</label>
+        <input
+          type='email'
+          className='form-control'
+          name='email'
+          onChange={this.handlechange}
+          value={email}
+        />
+      </div>
+      <div className='form-group'>
+        <label className='text-muted'>About</label>
+        <textarea
+          type='text'
+          className='form-control'
+          name='about'
+          onChange={this.handlechange}
+          value={about}
+        />
+      </div>
+      <div className='form-group'>
+        <label className='text-muted'>Password</label>
+        <input
+          type='password'
+          className='form-control'
+          name='password'
+          onChange={this.handlechange}
+          value={password}
+        />
+      </div>
+
+      <button className='btn btn-raised btn-primary'>Update</button>
+    </form>
+  );
+
   render() {
     const {
       id,
@@ -182,62 +241,11 @@ export class EditProfile extends Component {
           onError={image => (image.target.src = `${DefaultProfile}`)}
         />
 
-        {/* Edit Profile Form */}
-        <form onSubmit={this.handleSubmit}>
-          <div className='form-group'>
-            <label className='text-muted'>Profile Photo</label>
-            <input
-              type='file'
-              className='form-control'
-              name='photo'
-              onChange={this.handlechange}
-              accept='image/*'
-              // value={name}
-            />
-          </div>
-          <div className='form-group'>
-            <label className='text-muted'>Name</label>
-            <input
-              type='text'
-              className='form-control'
-              name='name'
-              onChange={this.handlechange}
-              value={name}
-            />
-          </div>
-          <div className='form-group'>
-            <label className='text-muted'>Email</label>
-            <input
-              type='email'
-              className='form-control'
-              name='email'
-              onChange={this.handlechange}
-              value={email}
-            />
-          </div>
-          <div className='form-group'>
-            <label className='text-muted'>About</label>
-            <textarea
-              type='text'
-              className='form-control'
-              name='about'
-              onChange={this.handlechange}
-              value={about}
-            />
-          </div>
-          <div className='form-group'>
-            <label className='text-muted'>Password</label>
-            <input
-              type='password'
-              className='form-control'
-              name='password'
-              onChange={this.handlechange}
-              value={password}
-            />
-          </div>
+        {isAuthenticated().user.role === "admin" &&
+          this.editProfileForm(name, email, password, about)}
 
-          <button className='btn btn-raised btn-primary'>Update</button>
-        </form>
+        {isAuthenticated().user.id === id &&
+          this.editProfileForm(name, email, password, about)}
       </div>
     );
   }

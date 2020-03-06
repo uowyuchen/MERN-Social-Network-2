@@ -145,7 +145,7 @@ export class Profile extends Component {
                 >
                   Edit Profile
                 </Link>
-                <DeleteUser />
+                <DeleteUser userId={user._id} />
               </div>
             ) : (
               <FollowProfileButton
@@ -153,6 +153,8 @@ export class Profile extends Component {
                 onButtonClick={this.clickFollowButton}
               />
             )}
+
+            {/* admin user 的 update，delete */}
             <div>
               {isAuthenticated().user &&
                 isAuthenticated().user.role === "admin" && (
@@ -168,7 +170,10 @@ export class Profile extends Component {
                       >
                         Edit Profile
                       </Link>
-                      <DeleteUser userId={user._id} />
+                      <DeleteUser
+                        user={user}
+                        userId={this.props.match.params.userId}
+                      />
                     </div>
                   </div>
                 )}
